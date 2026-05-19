@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yumeyakata x Kabin — Guest Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:   #2255CC; --blue-lt:   #EBF0FD; --blue-bd:   #B8CAF5;
+  --teal:   #0B7A64; --teal-lt:   #E4F4F0; --teal-bd:   #9FD5C8;
+  --purple: #5E30B5; --purple-lt: #EDEBFC; --purple-bd: #C0B0F0;
+  --amber:  #A85E00; --amber-lt:  #FEF3E2; --amber-bd:  #F0C878;
+  --green:  #1B7A40; --green-lt:  #E6F6ED; --green-bd:  #9FD5B5;
+  --green2: #145E30;
+  --red:    #BF2222; --red-lt:    #FDEAEA; --red-bd:    #F0AAAA;
+  --red-dk: #8B1515;
+  --ink: #1A1B20; --muted: #686B76; --border: #DFE2EA; --bg: #F4F5FA; --white: #fff;
+  --r: 8px; --rsm: 6px;
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg); color: var(--ink);
+  min-width: 1500px; padding: 40px 44px 80px;
+}
+h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.4px; margin-bottom: 4px; }
+.sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+/* LANE */
+.lane {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 30px 32px 22px; overflow: visible;
+  margin-bottom: 14px; position: relative;
+}
+.lane-1 { background: #F0F3FE; border-color: #C5D1F7; }
+.lane-2 { background: #EBF7F2; border-color: #A8D9C0; }
+.lane-tag {
+  position: absolute; top: -1px; left: 18px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 3px 12px; border-radius: 0 0 7px 7px; color: #fff;
+}
+.lane-1 .lane-tag { background: var(--blue); }
+.lane-2 .lane-tag { background: var(--green); }
+
+/* FLOW ROW */
+.flow { display: flex; align-items: center; padding-top: 6px; }
+
+/* NODES */
+.node {
+  flex-shrink: 0; border-radius: var(--r);
+  padding: 9px 12px; font-size: 12px; font-weight: 500; line-height: 1.4;
+  text-align: center; color: #fff;
+}
+.node small { display: block; font-size: 10px; font-weight: 400; opacity: 0.76; margin-top: 2px; line-height: 1.3; }
+.nb  { background: var(--blue); }
+.nt  { background: var(--teal); }
+.np  { background: var(--purple); }
+.na  { background: var(--amber); }
+.ng  { background: var(--green); }
+.ng2 { background: var(--green2); }
+
+/* SPLIT STACK: label pill + stacked option nodes */
+.split { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.split-lbl {
+  font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--muted); background: var(--border); border-radius: 4px; padding: 2px 7px;
+}
+.split-stack { display: flex; flex-direction: column; gap: 6px; }
+.sn {
+  border-radius: var(--rsm); padding: 7px 10px;
+  font-size: 11px; font-weight: 500; text-align: center; line-height: 1.35;
+  color: #fff;
+}
+.sn small { display: block; font-size: 10px; font-weight: 400; opacity: 0.76; margin-top: 2px; line-height: 1.3; }
+.snt  { background: var(--teal); }
+.sna  { background: var(--amber); }
+.sng  { background: var(--green); }
+
+/* STRAIGHT ARROW */
+.arr {
+  flex-shrink: 0; display: flex; align-items: center; padding: 0 2px;
+}
+.arr::before { content: ''; display: block; width: 16px; height: 1.5px; background: currentColor; }
+.arr::after  { content: ''; display: block; width: 0; height: 0;
+  border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+  border-left: 6px solid currentColor; margin-left: -1px; }
+.arr.dash::before { background: repeating-linear-gradient(to right,currentColor 0,currentColor 3px,transparent 3px,transparent 7px); }
+.ac { color: var(--muted); }
+.at { color: var(--teal); }
+.ap { color: var(--purple); }
+.aa { color: var(--amber); }
+.ag { color: var(--green); }
+
+/* FAN CONNECTOR PLACEHOLDER — sized by JS */
+.fan { flex-shrink: 0; display: flex; align-items: center; }
+.fan svg { display: block; }
+
+/* EMAIL CHIPS */
+.emails { flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
+.elbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding-bottom: 3px; }
+.echip {
+  border-radius: var(--rsm); padding: 4px 9px;
+  font-size: 11px; font-weight: 500; line-height: 1.3;
+  background: var(--purple-lt); color: var(--purple); border: 1px solid var(--purple-bd);
+  white-space: nowrap;
+}
+
+/* CANCEL BLOCK */
+.cancel {
+  background: var(--red-lt); border: 1.5px solid var(--red-bd);
+  border-radius: 12px; padding: 18px 22px; margin-top: 14px;
+}
+.ctitle { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--red); margin-bottom: 10px; }
+.crow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+.cbadge {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 3px 9px; border-radius: 5px; color: #fff; white-space: nowrap;
+  align-self: flex-start; margin-top: 4px;
+}
+.cbr  { background: var(--red); }
+.cbrd { background: var(--red-dk); }
+.ccard {
+  background: var(--white); border: 1px solid var(--red-bd);
+  border-radius: var(--r); padding: 10px 13px;
+  font-size: 11px; line-height: 1.65; color: var(--red);
+  flex: 1; min-width: 240px; max-width: 400px;
+}
+.ccard b { font-weight: 600; display: block; margin-bottom: 2px; }
+
+/* NOTES */
+.notes { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-top: 28px; }
+.nc { background: var(--white); border: 1px solid var(--border); border-radius: 11px; padding: 14px 16px; }
+.nc h3 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 9px; padding-bottom: 7px; border-bottom: 1.5px solid var(--border); color: var(--ink); }
+.nc ul { list-style: none; }
+.nc li { font-size: 11px; color: var(--muted); line-height: 1.7; }
+.nc li::before { content: "› "; color: var(--ink); font-weight: 600; }
+.ncall { font-size: 11px; margin-top: 8px; padding: 6px 9px; border-radius: 5px; line-height: 1.5; }
+.nca  { background: var(--amber-lt); color: var(--amber); border: 1px solid var(--amber-bd); }
+.nct  { background: var(--teal-lt);  color: var(--teal);  border: 1px solid var(--teal-bd); }
+
+.sep { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 26px 0 11px; display: flex; align-items: center; gap: 10px; }
+.sep::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+
+<h1>Yumeyakata x Kabin — Guest Journey</h1>
+<p class="sub">Kimono experience booking flow · Website and App · Before or during stay</p>
+
+<!-- LANE 1 -->
+<div class="lane lane-1">
+  <span class="lane-tag">① Before stay — Website / App</span>
+  <div class="flow" id="row1">
+
+    <div class="node nb" style="min-width:120px" id="r1-entry">
+      Website or App
+      <small>Before the stay</small>
+    </div>
+    <div class="arr at"></div>
+    <div class="node nt" style="min-width:126px" id="r1-book">
+      Book room + kimono bundle
+    </div>
+
+    <div class="fan" id="fan-r1-date-out"></div>
+    <div class="split" id="split-r1-date">
+      <div class="split-lbl">Select date</div>
+      <div class="split-stack">
+        <div class="sn snt" style="min-width:142px">Select kimono date now</div>
+        <div class="sn snt" style="min-width:142px">Defer kimono date (later)</div>
+      </div>
+    </div>
+    <div class="fan" id="fan-r1-date-in"></div>
+
+    <div class="node np" style="min-width:128px" id="r1-fill">
+      Fill guest info
+      <small>Name · guests · height<br>return method · add-ons</small>
+    </div>
+
+    <div class="fan" id="fan-r1-pay-out"></div>
+    <div class="split" id="split-r1-pay">
+      <div class="split-lbl">Payment</div>
+      <div class="split-stack">
+        <div class="sn sna" style="min-width:152px">
+          Pay now at booking
+          <small>Room + Kimono add-on</small>
+        </div>
+        <div class="sn sna" style="min-width:152px">
+          Pay later, ideally 3 days before
+          <small>Reminder sent · 1 day min.</small>
+        </div>
+      </div>
+    </div>
+    <div class="fan" id="fan-r1-pay-in"></div>
+
+    <div class="node np" style="min-width:116px" id="r1-conf">
+      Booking confirmed ✓
+    </div>
+    <div class="arr ap"></div>
+    <div class="emails" id="r1-emails">
+      <div class="elbl">Confirmation emails</div>
+      <div class="echip">Yumeyakata team</div>
+      <div class="echip">Hotel staff / FD</div>
+      <div class="echip">Guest</div>
+    </div>
+    <div class="arr ac dash"></div>
+    <div class="node ng2" style="min-width:124px;padding:11px 13px;font-size:13px;font-weight:600" id="r1-kday">
+      Kimono Day
+      <small>Add-ons paid at Yumeyakata</small>
+    </div>
+
+    <div class="fan" id="fan-r1-ret-out"></div>
+    <div class="split" id="split-r1-ret">
+      <div class="split-lbl">Return</div>
+      <div class="split-stack">
+        <div class="sn sng" style="min-width:152px;font-size:11px">
+          At Yumeyakata — free
+          <small>Until 17:30 · daily pickup</small>
+        </div>
+        <div class="sn sng" style="min-width:152px;font-size:11px">
+          At hotel front desk
+          <small>¥550 pre-paid at Yumeyakata · Hours TBC</small>
+        </div>
+      </div>
+    </div>
+    <div class="fan" id="fan-r1-ret-in"></div>
+
+    <div class="node ng" style="min-width:68px;padding:9px 10px;align-self:center;" id="r1-done">Done ✓</div>
+  </div>
+</div>
+
+<!-- LANE 2 -->
+<div class="lane lane-2">
+  <span class="lane-tag">② During the stay — Website, App or QR scan at mannequin</span>
+  <div class="flow" id="row2">
+
+    <div class="node ng" style="min-width:120px" id="r2-entry">
+      Website, App or QR scan
+      <small>During the stay</small>
+    </div>
+    <div class="arr ag"></div>
+    <div class="node nt" style="min-width:126px" id="r2-book">
+      Add kimono to existing booking
+    </div>
+    <div class="arr at"></div>
+
+    <div class="split" id="split-r2-date">
+      <div class="split-lbl">Select date</div>
+      <div class="split-stack">
+        <div class="sn snt" style="min-width:152px">
+          Pick kimono date
+          
+        </div>
+      </div>
+    </div>
+    <div class="arr at"></div>
+
+    <div class="node np" style="min-width:128px" id="r2-fill">
+      Fill guest info
+      <small>Name · guests · height<br>return method · add-ons</small>
+    </div>
+    <div class="arr aa"></div>
+
+    <div class="split" id="split-r2-pay">
+      <div class="split-lbl">Payment</div>
+      <div class="split-stack">
+        <div class="sn sna" style="min-width:152px">
+          Pay now<small>At least 1 day before kimono day</small>
+        </div>
+      </div>
+    </div>
+    <div class="arr ap"></div>
+
+    <div class="node np" style="min-width:116px" id="r2-conf">
+      Booking confirmed ✓
+    </div>
+    <div class="arr ap"></div>
+    <div class="emails" id="r2-emails">
+      <div class="elbl">Confirmation emails</div>
+      <div class="echip">Yumeyakata team</div>
+      <div class="echip">Hotel staff / FD</div>
+      <div class="echip">Guest</div>
+    </div>
+    <div class="arr ac dash"></div>
+    <div class="node ng2" style="min-width:124px;padding:11px 13px;font-size:13px;font-weight:600" id="r2-kday">
+      Kimono Day
+      <small>Add-ons paid at Yumeyakata</small>
+    </div>
+
+    <div class="fan" id="fan-r2-ret-out"></div>
+    <div class="split" id="split-r2-ret">
+      <div class="split-lbl">Return</div>
+      <div class="split-stack">
+        <div class="sn sng" style="min-width:152px;font-size:11px">
+          At Yumeyakata — free
+          <small>Until 17:30 · daily pickup</small>
+        </div>
+        <div class="sn sng" style="min-width:152px;font-size:11px">
+          At hotel front desk
+          <small>¥550 pre-paid at Yumeyakata · Hours TBC</small>
+        </div>
+      </div>
+    </div>
+    <div class="fan" id="fan-r2-ret-in"></div>
+
+    <div class="node ng" style="min-width:68px;padding:9px 10px;align-self:center;" id="r2-done">Done ✓</div>
+  </div>
+</div>
+
+<!-- CANCELLATION -->
+<div class="cancel">
+  <div class="ctitle">Cancellation policy — applies to both routes · Cancelling the room booking also cancels the kimono booking</div>
+  <div class="crow">
+    <span class="cbadge cbr">More than 24h before</span>
+    <div class="ccard">
+      <b>Full refund</b>
+      Email Yumeyakata: info@yumeyakata.com<br>
+      Include booking date/time + guest name
+    </div>
+    <span class="cbadge cbr">Less than 24h before</span>
+    <div class="ccard">
+      <b>No refund or partial refund (TBD) · Ticket can still be used</b>
+      Email Yumeyakata as soon as possible: info@yumeyakata.com<br>
+      Include booking date/time + guest name
+    </div>
+    <span class="cbadge cbrd">No-show</span>
+    <div class="ccard">
+      <b>No refund · Ticket considered used</b>
+      If the guest does not show up on the day without prior cancellation, no refund is issued and the ticket is marked as used
+    </div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="sep">Reference notes</div>
+<div class="notes">
+  <div class="nc">
+    <h3>Required booking info</h3>
+    <ul>
+      <li>Guest name</li>
+      <li>No. of guests (Men / Ladies / Boys / Girls)</li>
+      <li>Height (for kimono sizing)</li>
+      <li>Return method (in-store or hotel FD)</li>
+      <li>Selected add-ons (hair / makeup / upgrade)</li>
+    </ul>
+  </div>
+  <div class="nc">
+    <h3>Add-ons (selected at booking)</h3>
+    <ul>
+      <li>Standard hairstyling (ladies) ¥1,650</li>
+      <li>Full makeup (ladies) ¥4,400</li>
+      <li>Upgrade to premium kimono from ¥6,820</li>
+    </ul>
+    <div class="ncall nca">All add-ons paid at Yumeyakata on kimono day. Prices subject to change.</div>
+  </div>
+  <div class="nc">
+    <h3>Payment flow</h3>
+    <ul>
+      <li>Route ①: pay now (room + kimono) or pay later</li>
+      <li>Route ②: pay later, ideally 3 days before</li>
+      <li>Minimum: 1 day before, no same-day bookings</li>
+      <li>All add-ons: paid at Yumeyakata on the day</li>
+      <li>Hotel FD return fee (¥550): pre-paid at Yumeyakata</li>
+    </ul>
+    <div class="ncall nca">Reminder emails sent 3 days before the experience</div>
+  </div>
+  <div class="nc">
+    <h3>Return options</h3>
+    <ul>
+      <li>At Yumeyakata: free, until 17:30, daily pickup</li>
+      <li>At hotel front desk: ¥550, pre-paid at Yumeyakata on the day</li>
+      <li>Hotel FD return hours: TBC, to confirm with Yumeyakata</li>
+    </ul>
+    <div class="ncall nct">No prices shown on the hotel side. All payments at Yumeyakata directly.</div>
+  </div>
+  <div class="nc">
+    <h3>Next steps</h3>
+    <ul>
+      <li>Target launch: July 2026</li>
+      <li>2 mannequins (male + female pair) for hotel</li>
+      <li>Seasonal display change every 3 to 4 months</li>
+      <li>Follow-up: mannequin display scheduling</li>
+      <li>Request invoice from Yumeyakata for finance</li>
+      <li>Contact: info@yumeyakata.com</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// All y-coordinates are measured relative to the placeholder element itself.
+// The SVG is placed inside the placeholder with position:absolute, top:0.
+// We compute each node midpoint as: node.top - ph.top + node.height/2
+// and the "cy" (centre of the adjacent single box) the same way.
+// The placeholder is stretched to fill the row height via align-self:stretch
+// so the SVG can reach up/down to any node without clipping.
+function drawFan(phId, splitId, dir, color) {
+  const ph   = document.getElementById(phId);
+  const spEl = document.getElementById(splitId);
+  if (!ph || !spEl) return;
+
+  const snodes = Array.from(spEl.querySelectorAll('.sn'));
+  if (!snodes.length) return;
+
+  // Give the placeholder its final geometry BEFORE measuring
+  ph.innerHTML = '';
+  ph.style.cssText = 'flex-shrink:0; width:32px; align-self:stretch; position:relative;';
+
+  const phRect = ph.getBoundingClientRect();
+
+  // Centre of the placeholder itself = centre of the adjacent single node in the row
+  const cy = phRect.height / 2;
+
+  // Centre of each split-node, in placeholder-local coordinates
+  const mids = snodes.map(n => {
+    const r = n.getBoundingClientRect();
+    return (r.top - phRect.top) + r.height / 2;
+  });
+
+  const W = 32;
+  const H = phRect.height;
+
+  const ns  = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width',  W);
+  svg.setAttribute('height', H);
+  svg.style.cssText = 'position:absolute;top:0;left:0;display:block;overflow:visible;pointer-events:none;';
+
+  const mkId = 'mk' + Math.random().toString(36).slice(2, 8);
+  const defs = document.createElementNS(ns, 'defs');
+  defs.innerHTML = `<marker id="${mkId}" viewBox="0 0 10 10" refX="9" refY="5"
+    markerWidth="5" markerHeight="5" orient="auto">
+    <path d="M1 2 L9 5 L1 8" fill="none" stroke="${color}"
+      stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>`;
+  svg.appendChild(defs);
+
+  function seg(x1, y1, x2, y2, arrow) {
+    const l = document.createElementNS(ns, 'line');
+    l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+    l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+    l.setAttribute('stroke', color);
+    l.setAttribute('stroke-width', '1.5');
+    l.setAttribute('stroke-linecap', 'round');
+    if (arrow) l.setAttribute('marker-end', `url(#${mkId})`);
+    svg.appendChild(l);
+  }
+
+  const minY = Math.min(...mids);
+  const maxY = Math.max(...mids);
+  const mergeY = (minY + maxY) / 2;
+
+  if (dir === 'out') {
+    const sx = 8;
+    seg(0, cy, sx, cy);
+    seg(sx, minY, sx, maxY);
+    mids.forEach(my => seg(sx, my, W, my, true));
+  } else {
+    const sx = W - 8;
+    // exit y: midpoint of the next sibling node (the Done box), measured in ph-local coords
+    const nextNode = ph.nextElementSibling && ph.nextElementSibling.querySelector('.node')
+      ? ph.nextElementSibling.querySelector('.node')
+      : ph.nextElementSibling;
+    let exitY = mergeY;
+    if (nextNode) {
+      const nr = nextNode.getBoundingClientRect();
+      exitY = (nr.top - phRect.top) + nr.height / 2;
+    }
+    mids.forEach(my => seg(0, my, sx, my));
+    seg(sx, minY, sx, maxY);
+    seg(sx, exitY, W, exitY, true);
+  }
+
+  ph.appendChild(svg);
+}
+
+const TEAL   = '#0B7A64';
+const PURPLE = '#5E30B5';
+const GREEN  = '#1B7A40';
+
+function init() {
+  drawFan('fan-r1-date-out', 'split-r1-date', 'out', TEAL);
+  drawFan('fan-r1-date-in',  'split-r1-date', 'in',  PURPLE);
+  drawFan('fan-r1-pay-out',  'split-r1-pay',  'out', PURPLE);
+  drawFan('fan-r1-pay-in',   'split-r1-pay',  'in',  PURPLE);
+  drawFan('fan-r1-ret-out',  'split-r1-ret',  'out', GREEN);
+  drawFan('fan-r1-ret-in',   'split-r1-ret',  'in',  GREEN);
+  drawFan('fan-r2-ret-out',  'split-r2-ret',  'out', GREEN);
+  drawFan('fan-r2-ret-in',   'split-r2-ret',  'in',  GREEN);
+}
+
+document.fonts.ready.then(() => {
+  requestAnimationFrame(() => requestAnimationFrame(init));
+});
+</script>
+</body>
+</html>
